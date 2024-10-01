@@ -1,0 +1,22 @@
+{
+    "name": "My Portfoli1o",
+    "user_id": "faffafaggag-1-va-a-va-",
+    "assets": [
+        {
+            "id": "cagaagaga",
+            "symbol": "AAPL",
+            "quantity": 10,
+            "purchase_price": 150.0,
+            "purchase_date": "2020-08-11",
+            "asset_type": "stock"
+        },
+        {
+            "id": "daagagagaga",
+            "symbol": "MSFT",
+            "quantity": 10,
+            "purchase_price": 150.0,
+            "purchase_date": "2020-08-11",
+            "asset_type": "stock"
+        }
+    ]
+}
