@@ -5,3 +5,9 @@ motor
 python-dotenv
 bcrypt
 pydantic[email]
+# ----@k
+passlib
+bcrypt
+python-jose
+python-multipart
+# ------

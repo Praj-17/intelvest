@@ -5,6 +5,12 @@ from src.schemas import PortfolioCreate, PortfolioOut, PortfolioUpdate
 from src.database import get_database
 from src.services import PortfolioService
 
+# ---ak---
+from src.schemas import user
+from src.routes import oauth2
+# ,current_user: user.Login = Depends(oauth2.get_current_user)
+# --------
+
 portfolio_router = APIRouter(
     prefix="/portfolio",
     tags=["portfolios"],
@@ -12,7 +18,7 @@ portfolio_router = APIRouter(
 )
 
 # Dependency to get the PortfolioService instance
-def get_portfolio_service(db=Depends(get_database)) -> PortfolioService:
+def get_portfolio_service(db=Depends(get_database),current_user: user.Login = Depends(oauth2.get_current_user)) -> PortfolioService:
     return PortfolioService(db)
 
 @portfolio_router.post("/", response_model=PortfolioOut, status_code=status.HTTP_201_CREATED)
