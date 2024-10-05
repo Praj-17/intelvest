@@ -5,3 +5,5 @@ motor
 python-dotenv
 bcrypt
 pydantic[email]
+okama
+empyrial
