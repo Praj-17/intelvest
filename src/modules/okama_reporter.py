@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 import os
 import json
+import okama as ok
 
 class OkamaReporter:
     def __init__(self) -> None:
@@ -11,7 +12,8 @@ class OkamaReporter:
             self.attributes = json.load(f)
     def get_attributes(self):
         return self.attributes
-    def get_an_attribute(self, portfolio_obj, attribute):
+    def get_an_attribute(self, Portfolio, attribute):
+        portfolio_obj = ok.Portfolio(**Portfolio)
         return portfolio_obj.__getattribute__(attribute)
     
 

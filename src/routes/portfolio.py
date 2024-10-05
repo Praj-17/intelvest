@@ -4,6 +4,7 @@ from typing import List
 from src.schemas import PortfolioCreate, PortfolioOut, PortfolioUpdate
 from src.database import get_database
 from src.services import PortfolioService
+from src.services import get_portfolio_service
 
 portfolio_router = APIRouter(
     prefix="/portfolio",
@@ -11,9 +12,7 @@ portfolio_router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-# Dependency to get the PortfolioService instance
-def get_portfolio_service(db=Depends(get_database)) -> PortfolioService:
-    return PortfolioService(db)
+
 
 @portfolio_router.post("/", response_model=PortfolioOut, status_code=status.HTTP_201_CREATED)
 async def create_portfolio(portfolio: PortfolioCreate, service: PortfolioService = Depends(get_portfolio_service)):
