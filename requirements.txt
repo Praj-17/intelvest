@@ -7,3 +7,4 @@ bcrypt
 pydantic[email]
 okama
 empyrial
+jinja2
