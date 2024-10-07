@@ -128,7 +128,7 @@ celerybeat.pid
 .venv
 
 venv/
-ENV/
+
 env.bak/
 venv.bak/
 
@@ -177,8 +177,7 @@ pyrightconfig.json
 
 .env
 
-env/
-env\
+
 
 # ---ak---
 .env
