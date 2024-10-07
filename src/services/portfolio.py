@@ -4,10 +4,12 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from src.CRUD import CRUDPortfolio
 from src.schemas import PortfolioCreate, PortfolioUpdate
 from src.models import PortfolioModel
+from src.utils import PortfolioUtils
 
 class PortfolioService:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.crud = CRUDPortfolio(db.portfolios)
+        self.utils = PortfolioUtils()
 
     async def create_portfolio(self, data: PortfolioCreate) -> PortfolioModel:
         return await self.crud.create_portfolio(data)

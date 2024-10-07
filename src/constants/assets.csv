@@ -1,0 +1,5 @@
+﻿symbol,quantity,purchase_price,purchase_date,asset_type
+AAPL,10,100,08-10-2022,stock
+VOO,100,20,08-10-2022,etf
+VSMPX,10,200,08-10-2022,mutual_fund
+MSFT,100,29,08-10-2022,stock
