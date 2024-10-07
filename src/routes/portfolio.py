@@ -7,13 +7,28 @@ from datetime import datetime
 from src.models.portfolio import AssetType
 from src.schemas import PortfolioCreate, PortfolioOut, PortfolioUpdate
 from src.services import PortfolioService
+
+
+# ---ak---
+from src.schemas import user
+from src.routes import oauth2
+# ,current_user: user.Login = Depends(oauth2.get_current_user)
+# --------
+
+=======
 from src.services import get_portfolio_service
 from typing import Optional
+
 portfolio_router = APIRouter(
     prefix="/portfolio",
     tags=["portfolios"],
     responses={404: {"description": "Not found"}},
 )
+
+
+# Dependency to get the PortfolioService instance
+def get_portfolio_service(db=Depends(get_database),current_user: user.Login = Depends(oauth2.get_current_user)) -> PortfolioService:
+    return PortfolioService(db)
 
 @portfolio_router.post("/upload", response_model=PortfolioOut, status_code=status.HTTP_201_CREATED)
 async def create_portfolio(
@@ -86,6 +101,7 @@ async def create_portfolio(
     # Create the portfolio using the service
     new_portfolio = await service.create_portfolio(portfolio_data)
     return new_portfolio
+
 
 @portfolio_router.post("/", response_model=PortfolioOut, status_code=status.HTTP_201_CREATED)
 async def create_portfolio(portfolio: PortfolioCreate, service: PortfolioService = Depends(get_portfolio_service)):

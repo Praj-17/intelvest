@@ -9,3 +9,11 @@ okama
 empyrial
 jinja2
 python-multipart
+
+# ----@k
+passlib
+bcrypt
+python-jose
+python-multipart
+sqlalchemy
+# ------

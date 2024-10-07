@@ -8,6 +8,7 @@ class AssetType(str, Enum):
     stock = 'stock'
     etf = 'etf'
     mutual_fund = 'mutual_fund'
+
 class AssetModel(BaseModel):
     symbol: Optional[str] = None
     quantity: float = 0.0
@@ -16,6 +17,7 @@ class AssetModel(BaseModel):
     asset_type: AssetType  # New field added here
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
+    
 class PortfolioModel(BaseModel):
     id: str
     user_id: Optional[str] = None
@@ -26,6 +28,9 @@ class PortfolioModel(BaseModel):
     class Config:
         populate_by_name = True
         arbitrary_types_allowed = True
+
+
+
     def to_dict(self, exclude_none: bool = True, by_alias: bool = False) -> dict:
         """
         Converts the PortfolioModel instance to a dictionary.
@@ -54,3 +59,4 @@ class PortfolioModel(BaseModel):
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
+
