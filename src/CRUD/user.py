@@ -7,17 +7,20 @@ import uuid
 from src.schemas import UserCreate, UserUpdate
 from src.models import UserModel
 
+
 class CRUDUser:
     def __init__(self, collection: AsyncIOMotorCollection):
         self.collection = collection
 
     async def create_user(self, user: UserCreate) -> UserModel:
+        
         user_dict = user.dict()
         user_dict["created_at"] = datetime.now()
         user_dict["updated_at"] = datetime.now()
         user_dict["_id"] = str(uuid.uuid4())
         await self.collection.insert_one(user_dict)
         user_dict["id"] = user_dict.pop("_id")
+        
         return UserModel(**user_dict)
 
     async def get_user(self, user_id: str) -> Optional[UserModel]:

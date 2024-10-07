@@ -10,3 +10,11 @@ empyrial
 jinja2
 python-multipart
 python-dateutil
+
+# ----@k
+passlib
+bcrypt
+python-jose
+python-multipart
+sqlalchemy
+# ------

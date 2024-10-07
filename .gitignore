@@ -179,3 +179,9 @@ pyrightconfig.json
 
 env/
 env\
+
+# ---ak---
+.env
+__pycache__
+new-env
+new-env/
