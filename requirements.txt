@@ -10,4 +10,5 @@ passlib
 bcrypt
 python-jose
 python-multipart
+sqlalchemy
 # ------
