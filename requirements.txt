@@ -9,9 +9,6 @@ okama
 empyrial
 jinja2
 python-multipart
-python-dateutil
-pandas
-mpld3
 
 # ----@k
 passlib
