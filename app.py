@@ -5,8 +5,6 @@ from src.routes import user_router, portfolio_router
 
 # ---ak---
 from src.routes import authentication
-from src import databaseSQL
-from src.models import portfolio_sql
 # --------
 from src.routes import user_router, portfolio_router, analysis_router
 from starlette.responses import HTMLResponse
@@ -24,8 +22,6 @@ app = FastAPI(
 @app.get("/")
 def home():
     return "hello"
-
-portfolio_sql.Base.metadata.create_all(databaseSQL.engine)
 
 app.include_router(authentication.router)
 # ----------------------------

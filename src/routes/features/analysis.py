@@ -9,6 +9,13 @@ import pandas as pd
 from src.modules import get_okama_reporter
 from src.utils import get_utils, Utils
 
+# ---ak---
+from src.schemas import user
+from src.routes import oauth2
+# ,current_user: user.Login = Depends(oauth2.get_current_user)
+# --------
+
+
 analysis_router = APIRouter(
     prefix="/feature/analysis",
     tags=["features"],
@@ -24,7 +31,7 @@ analysis_router = APIRouter(
     summary="Retrieve all available attributes for analysis",
     status_code=status.HTTP_200_OK
 )
-async def read_attributes(okama_reporter: OkamaReporter = Depends(get_okama_reporter)) -> List[str]:
+async def read_attributes(okama_reporter: OkamaReporter = Depends(get_okama_reporter),current_user: user.Login = Depends(oauth2.get_current_user)) -> List[str]:
     """
     Retrieve a list of all available attributes for analysis.
     """
@@ -45,7 +52,8 @@ async def get_analysis(
     attribute: str,
     service: PortfolioService = Depends(get_portfolio_service),
     okama_reporter: OkamaReporter = Depends(get_okama_reporter),
-    utils: Utils = Depends(get_utils)
+    utils: Utils = Depends(get_utils),
+    current_user: user.Login = Depends(oauth2.get_current_user)
 ):
     print("__________________________________________________________")
     print(utils)

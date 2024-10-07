@@ -7,7 +7,7 @@ from datetime import datetime
 from src.models.portfolio import AssetType
 from src.schemas import PortfolioCreate, PortfolioOut, PortfolioUpdate
 from src.services import PortfolioService
-
+from src.database import get_database
 
 # ---ak---
 from src.schemas import user
@@ -15,7 +15,6 @@ from src.routes import oauth2
 # ,current_user: user.Login = Depends(oauth2.get_current_user)
 # --------
 
-=======
 from src.services import get_portfolio_service
 from typing import Optional
 
