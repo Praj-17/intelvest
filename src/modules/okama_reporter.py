@@ -14,7 +14,10 @@ class OkamaReporter:
         return self.attributes
     def get_an_attribute(self, Portfolio, attribute):
         portfolio_obj = ok.Portfolio(**Portfolio)
-        return portfolio_obj.__getattribute__(attribute)
+        obj = portfolio_obj.__getattribute__(attribute)
+        if callable(obj):
+            return obj()
+        return obj
     
 
 

@@ -1,9 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from typing import List
 
 from src.services import get_portfolio_service, PortfolioService
 from src.modules import OkamaReporter
 import pandas as pd
+from src.modules import get_okama_reporter
+from src.utils import get_utils, Utils
 
 analysis_router = APIRouter(
     prefix="/feature/analysis",
@@ -11,9 +15,8 @@ analysis_router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-# Inject OkamaReporter as a dependency for better testability and scalability
-def get_okama_reporter() -> OkamaReporter:
-    return OkamaReporter()
+
+
 
 @analysis_router.get(
     "/",
@@ -41,8 +44,11 @@ async def get_analysis(
     portfolio_id: str,
     attribute: str,
     service: PortfolioService = Depends(get_portfolio_service),
-    okama_reporter: OkamaReporter = Depends(get_okama_reporter)
-) -> dict:
+    okama_reporter: OkamaReporter = Depends(get_okama_reporter),
+    utils: Utils = Depends(get_utils)
+):
+    print("__________________________________________________________")
+    print(utils)
     """
     Retrieve analysis data for a given portfolio ID and attribute.
     """
@@ -75,4 +81,7 @@ async def get_analysis(
     data = okama_reporter.get_an_attribute(processed_portfolio, attribute)
     print("_______________________________________")
     print(data)
-    return {"data": data}
+
+    # Format Data
+    data = utils.serialize_data(data=data)
+    return JSONResponse(content=jsonable_encoder(data), status_code=200)
