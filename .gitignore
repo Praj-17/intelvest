@@ -186,3 +186,5 @@ env
 env/
 intelvest_env
 intelvest_env/
+intelvest/env
+intelvest/env/
