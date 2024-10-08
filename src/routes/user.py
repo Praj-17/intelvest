@@ -23,7 +23,7 @@ def get_user_service(db=Depends(get_database)) -> UserService:
     return UserService(db)
 
 @user_router.post("/", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-async def create_user(user: UserCreate, service: UserService = Depends(get_user_service),current_user: user.Login = Depends(oauth2.get_current_user)):
+async def create_user(user: UserCreate, service: UserService = Depends(get_user_service)):
     new_user = await service.create_user(user)
     return new_user
 

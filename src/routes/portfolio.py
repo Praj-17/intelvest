@@ -26,7 +26,7 @@ portfolio_router = APIRouter(
 
 
 # Dependency to get the PortfolioService instance
-def get_portfolio_service(db=Depends(get_database),current_user: user.Login = Depends(oauth2.get_current_user)) -> PortfolioService:
+def get_portfolio_service(db=Depends(get_database)) -> PortfolioService:
     return PortfolioService(db)
 
 @portfolio_router.post("/upload", response_model=PortfolioOut, status_code=status.HTTP_201_CREATED)
@@ -108,33 +108,33 @@ async def create_portfolio(portfolio: PortfolioCreate, service: PortfolioService
     return new_portfolio
 
 @portfolio_router.get("/{portfolio_id}", response_model=PortfolioOut)
-async def read_portfolio(portfolio_id: str, service: PortfolioService = Depends(get_portfolio_service)):
+async def read_portfolio(portfolio_id: str, service: PortfolioService = Depends(get_portfolio_service),current_user: user.Login = Depends(oauth2.get_current_user)):
     portfolio = await service.read_portfolio(portfolio_id)
     if portfolio is None:
         raise HTTPException(status_code=404, detail="Portfolio not found")
     return portfolio
 
 @portfolio_router.put("/{portfolio_id}", response_model=PortfolioOut)
-async def update_portfolio(portfolio_id: str, portfolio: PortfolioUpdate, service: PortfolioService = Depends(get_portfolio_service)):
+async def update_portfolio(portfolio_id: str, portfolio: PortfolioUpdate, service: PortfolioService = Depends(get_portfolio_service),current_user: user.Login = Depends(oauth2.get_current_user)):
     updated_portfolio = await service.update_portfolio(portfolio_id, portfolio)
     if updated_portfolio is None:
         raise HTTPException(status_code=404, detail="Portfolio not found or no changes made")
     return updated_portfolio
 
 @portfolio_router.delete("/{portfolio_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_portfolio(portfolio_id: str, service: PortfolioService = Depends(get_portfolio_service)):
+async def delete_portfolio(portfolio_id: str, service: PortfolioService = Depends(get_portfolio_service),current_user: user.Login = Depends(oauth2.get_current_user)):
     success = await service.delete_portfolio(portfolio_id)
     if not success:
         raise HTTPException(status_code=404, detail="Portfolio not found")
     return
 
 @portfolio_router.get("/", response_model=List[PortfolioOut])
-async def list_portfolios(skip: int = 0, limit: int = 10, service: PortfolioService = Depends(get_portfolio_service)):
+async def list_portfolios(skip: int = 0, limit: int = 10, service: PortfolioService = Depends(get_portfolio_service),current_user: user.Login = Depends(oauth2.get_current_user)):
     portfolios = await service.read_all_portfolios(skip=skip, limit=limit)
     return portfolios
 
 @portfolio_router.get("/user/{user_id}", response_model=List[PortfolioOut])
-async def get_portfolios_by_user(user_id: str, service: PortfolioService = Depends(get_portfolio_service)):
+async def get_portfolios_by_user(user_id: str, service: PortfolioService = Depends(get_portfolio_service),current_user: user.Login = Depends(oauth2.get_current_user)):
     portfolios = await service.get_portfolios_by_user(user_id)
     if not portfolios:
         raise HTTPException(status_code=404, detail="No portfolios found for this user")

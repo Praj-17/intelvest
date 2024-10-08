@@ -182,5 +182,7 @@ pyrightconfig.json
 # ---ak---
 .env
 __pycache__
-new-env
-new-env/
+env
+env/
+intelvest_env
+intelvest_env/
