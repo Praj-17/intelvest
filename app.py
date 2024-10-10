@@ -1,11 +1,7 @@
 # app/main.py
 from fastapi import FastAPI
 
-from src.routes import user_router, portfolio_router
 
-# ---ak---
-from src.routes import authentication
-# --------
 from src.routes import user_router, portfolio_router, analysis_router
 from starlette.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -23,7 +19,7 @@ app = FastAPI(
 def home():
     return "hello"
 
-app.include_router(authentication.router)
+app.include_router(analysis_router)
 # ----------------------------
 
 app.include_router(user_router)

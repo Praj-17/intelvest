@@ -7,11 +7,11 @@ from typing import Optional, Dict
 from src.routes import token
 from fastapi.security import OAuth2PasswordRequestForm
 
-router = APIRouter(
+api_router = APIRouter(
     tags=["Authentication"]
 )
 
-@router.post('/login')
+@api_router.post('/login')
 async def login(request: OAuth2PasswordRequestForm = Depends(), db=Depends(get_database)):
     users_collection = db['users'] 
     usern = await users_collection.find_one({"email": request.username})
