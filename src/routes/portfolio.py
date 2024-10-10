@@ -31,7 +31,7 @@ def get_portfolio_service(db=Depends(get_database)) -> PortfolioService:
 
 @portfolio_router.post("/upload", response_model=PortfolioOut, status_code=status.HTTP_201_CREATED)
 async def create_portfolio(
-   file: Optional[UploadFile] = File(None),
+   file: UploadFile = File(),
     service: PortfolioService = Depends(get_portfolio_service)
 ):
     required_columns = {'symbol', 'quantity', 'purchase_price', 'purchase_date', 'asset_type'}
