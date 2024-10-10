@@ -34,9 +34,15 @@ async def create_portfolio(
    file: Optional[UploadFile] = File(None),
     service: PortfolioService = Depends(get_portfolio_service)
 ):
+    required_columns = {'symbol', 'quantity', 'purchase_price', 'purchase_date', 'asset_type'}
     temp_user_id = "PRAJWAL"
 
         # Process CSV file
+    if not file:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Please upload a CSV file. with the following columns "
+        )
     if file.content_type != 'text/csv':
         raise HTTPException(
             status_code=400, 
@@ -47,7 +53,7 @@ async def create_portfolio(
         decoded_content = content.decode('utf-8')
         df = pd.read_csv(StringIO(decoded_content))
 
-        required_columns = {'symbol', 'quantity', 'purchase_price', 'purchase_date', 'asset_type'}
+        
         if not required_columns.issubset(df.columns):
             missing = required_columns - set(df.columns)
             raise HTTPException(
