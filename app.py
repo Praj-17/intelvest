@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 
 
-from src.routes import user_router, portfolio_router, analysis_router
+from src.routes import user_router, portfolio_router, analysis_router, auth_router
 from starlette.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
@@ -25,6 +25,7 @@ app.include_router(analysis_router)
 app.include_router(user_router)
 app.include_router(portfolio_router)
 app.include_router(analysis_router)
+app.include_router(auth_router)
 
 # Mount static directory for serving CSS, JS, and images
 app.mount("/assets", StaticFiles(directory="src/assets"), name="assets")
