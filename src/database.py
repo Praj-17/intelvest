@@ -1,17 +1,28 @@
-
-
 # app/database.py
+
 import os
-from motor.motor_asyncio import AsyncIOMotorClient
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-DATABASE_NAME = os.getenv("DATABASE_NAME", "test")
+MYSQL_USER = os.getenv("MYSQL_USER", "root")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
+MYSQL_HOST = os.getenv("MYSQL_HOST", "127.0.0.1")
+MYSQL_PORT = os.getenv("MYSQL_PORT", "3306")
+MYSQL_DB = os.getenv("MYSQL_DB", "yFinancedb")
 
-client = AsyncIOMotorClient(MONGODB_URI)
-db = client[DATABASE_NAME]
+DATABASE_URL = (
+    f"mysql+aiomysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
+)
 
-def get_database():
-    return db
+engine = create_async_engine(DATABASE_URL, echo=True)
+
+async_session = sessionmaker(
+    engine, expire_on_commit=False, class_=AsyncSession
+)
+
+async def get_database():
+    async with async_session() as session:
+        yield session

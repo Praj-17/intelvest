@@ -1,67 +1,76 @@
+# app/crud_portfolio.py
+
 from typing import List, Optional
-from motor.motor_asyncio import AsyncIOMotorCollection
-from datetime import datetime
-import uuid
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy import update, delete
+from datetime import datetime, date
 
 from src.schemas import PortfolioCreate, PortfolioUpdate
 from src.models import PortfolioModel
+from sqlalchemy.exc import NoResultFound
 
 class CRUDPortfolio:
-    def __init__(self, collection: AsyncIOMotorCollection):
-        self.collection = collection
+    def __init__(self):
+        pass  # No need to initialize with a collection or session
 
-    async def create_portfolio(self, portfolio: PortfolioCreate) -> PortfolioModel:
-        portfolio_dict = portfolio.dict()
-        portfolio_dict["created_at"] = datetime.now()
-        portfolio_dict["updated_at"] = datetime.now()
-        portfolio_dict["_id"] = str(uuid.uuid4())
-        await self.collection.insert_one(portfolio_dict)
-        portfolio_dict["id"] = portfolio_dict.pop("_id")
-        return PortfolioModel(**portfolio_dict)
+    async def create_portfolio(self, db: AsyncSession, portfolio: PortfolioCreate) -> PortfolioModel:
+        new_portfolio = PortfolioModel(
+            user_id=portfolio.user_id,
+            portfolio_name=portfolio.portfolio_name,
+            created_at=date.today(),
+            updated_at=datetime.utcnow()
+        )
+        db.add(new_portfolio)
+        await db.commit()
+        await db.refresh(new_portfolio)
+        return new_portfolio
 
-    async def get_portfolio(self, portfolio_id: str) -> Optional[PortfolioModel]:
-        document = await self.collection.find_one({"_id": portfolio_id})
-        if document:
-            document["id"] = document.pop("_id")
-            return PortfolioModel(**document)
-        return None
+    async def get_portfolio(self, db: AsyncSession, p_id: int) -> Optional[PortfolioModel]:
+        result = await db.execute(select(PortfolioModel).where(PortfolioModel.p_id == p_id))
+        portfolio = result.scalar_one_or_none()
+        return portfolio
 
-    async def update_portfolio(self, portfolio_id: str, portfolio: PortfolioUpdate) -> Optional[PortfolioModel]:
+    async def update_portfolio(self, db: AsyncSession, p_id: int, portfolio: PortfolioUpdate) -> Optional[PortfolioModel]:
+        result = await db.execute(select(PortfolioModel).where(PortfolioModel.p_id == p_id))
+        existing_portfolio = result.scalar_one_or_none()
+        if not existing_portfolio:
+            return None
+
         update_data = portfolio.dict(exclude_unset=True)
-        if update_data:
-            update_data["updated_at"] = datetime.now()
-            result = await self.collection.update_one(
-                {"_id": portfolio_id}, {"$set": update_data}
-            )
-            if result.modified_count:
-                return await self.get_portfolio(portfolio_id)
-        return None
+        for key, value in update_data.items():
+            setattr(existing_portfolio, key, value)
+        existing_portfolio.updated_at = datetime.utcnow()
+        await db.commit()
+        await db.refresh(existing_portfolio)
+        return existing_portfolio
 
-    async def delete_portfolio(self, portfolio_id: str) -> bool:
-        result = await self.collection.delete_one({"_id": portfolio_id})
-        return result.deleted_count == 1
+    async def delete_portfolio(self, db: AsyncSession, p_id: int) -> bool:
+        result = await db.execute(select(PortfolioModel).where(PortfolioModel.p_id == p_id))
+        portfolio = result.scalar_one_or_none()
+        if not portfolio:
+            return False
+        await db.delete(portfolio)
+        await db.commit()
+        return True
 
-    async def list_portfolios(self, skip: int = 0, limit: int = 10) -> List[PortfolioModel]:
-        cursor = self.collection.find().skip(skip).limit(limit)
-        portfolios = []
-        async for document in cursor:
-            document["id"] = document.pop("_id")
-            portfolios.append(PortfolioModel(**document))
+    async def list_portfolios(self, db: AsyncSession, skip: int = 0, limit: int = 10) -> List[PortfolioModel]:
+        result = await db.execute(
+            select(PortfolioModel).offset(skip).limit(limit)
+        )
+        portfolios = result.scalars().all()
         return portfolios
 
-    async def get_portfolios_by_user(self, user_id: str) -> List[PortfolioModel]:
-        cursor = self.collection.find({"user_id": user_id})
-        portfolios = []
-        async for document in cursor:
-            document["id"] = document.pop("_id")
-            portfolios.append(PortfolioModel(**document))
+    async def get_portfolios_by_user(self, db: AsyncSession, user_id: int) -> List[PortfolioModel]:
+        result = await db.execute(
+            select(PortfolioModel).where(PortfolioModel.user_id == user_id)
+        )
+        portfolios = result.scalars().all()
         return portfolios
 
-    async def list_all_portfolio_ids(self) -> Optional[List[str]]:
-        cursor = self.collection.find({}, {"_id": 1})
-        portfolio_ids = []
-        async for document in cursor:
-            portfolio_ids.append(document["_id"])
+    async def list_all_portfolio_ids(self, db: AsyncSession) -> Optional[List[int]]:
+        result = await db.execute(select(PortfolioModel.p_id))
+        portfolio_ids = result.scalars().all()
         if portfolio_ids:
             return portfolio_ids
         return None

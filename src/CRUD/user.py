@@ -1,77 +1,95 @@
-# app/crud.py
+# app/crud_user.py
+
 from typing import List, Optional
-from motor.motor_asyncio import AsyncIOMotorCollection
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy import update, delete
+from sqlalchemy.exc import NoResultFound
 from datetime import datetime
-import uuid
 
-from src.schemas import UserCreate, UserUpdate
 from src.models import UserModel
-
+from src.schemas import UserCreate, UserUpdate
 
 class CRUDUser:
-    def __init__(self, collection: AsyncIOMotorCollection):
-        self.collection = collection
+    def __init__(self):
+        pass  # No initialization needed
 
-    async def create_user(self, user: UserCreate) -> UserModel:
-        
-        user_dict = user.dict()
-        user_dict["created_at"] = datetime.now()
-        user_dict["updated_at"] = datetime.now()
-        user_dict["_id"] = str(uuid.uuid4())
-        await self.collection.insert_one(user_dict)
-        user_dict["id"] = user_dict.pop("_id")
-        
-        return UserModel(**user_dict)
+    async def create_user(self, db: AsyncSession, user: UserCreate) -> UserModel:
+        # Hash the password before storing it
+        user_data = user.dict(exclude={'password'})
+        user_data['password'] = user.password
+        user_data['added_on'] = datetime.now()
 
-    async def get_user(self, user_id: str) -> Optional[UserModel]:
-        document = await self.collection.find_one({"_id": user_id})
-        if document:
-            document["id"] = document.pop("_id")
-            return UserModel(**document)
-        return None
+        new_user = UserModel(**user_data)
+        db.add(new_user)
+        await db.commit()
+        await db.refresh(new_user)
+        return new_user
 
-    async def update_user(self, user_id: str, user: UserUpdate) -> Optional[UserModel]:
+    async def get_user(self, db: AsyncSession, user_id: int) -> Optional[UserModel]:
+        result = await db.execute(
+            select(UserModel).where(UserModel.user_Id == user_id)
+        )
+        user = result.scalar_one_or_none()
+        return user
+
+    async def update_user(self, db: AsyncSession, user_id: int, user: UserUpdate) -> Optional[UserModel]:
+        result = await db.execute(
+            select(UserModel).where(UserModel.user_Id == user_id)
+        )
+        existing_user = result.scalar_one_or_none()
+        if not existing_user:
+            return None
+
         update_data = user.dict(exclude_unset=True)
-        if update_data:
-            update_data["updated_at"] = datetime.now()
-            result = await self.collection.update_one(
-                {"_id": user_id}, {"$set": update_data}
-            )
-            if result.modified_count:
-                return await self.get_user(user_id)
-        return None
+        if 'password' in update_data:
+            # Hash the new password before updating
+            update_data['password'] = get_password_hash(update_data['password'])
+        update_data['updated_at'] = datetime.utcnow()
 
-    async def delete_user(self, user_id: str) -> bool:
-        result = await self.collection.delete_one({"_id": user_id})
-        return result.deleted_count == 1
+        for key, value in update_data.items():
+            setattr(existing_user, key, value)
 
-    async def list_users(self, skip: int = 0, limit: int = 10) -> List[UserModel]:
-        cursor = self.collection.find().skip(skip).limit(limit)
-        users = []
-        async for document in cursor:
-            document["id"] = document.pop("_id")
-            users.append(UserModel(**document))
+        await db.commit()
+        await db.refresh(existing_user)
+        return existing_user
+
+    async def delete_user(self, db: AsyncSession, user_id: int) -> bool:
+        result = await db.execute(
+            select(UserModel).where(UserModel.user_Id == user_id)
+        )
+        user = result.scalar_one_or_none()
+        if not user:
+            return False
+
+        await db.delete(user)
+        await db.commit()
+        return True
+
+    async def list_users(self, db: AsyncSession, skip: int = 0, limit: int = 10) -> List[UserModel]:
+        result = await db.execute(
+            select(UserModel).offset(skip).limit(limit)
+        )
+        users = result.scalars().all()
         return users
 
-    async def read_user_from_email(self, email: str) -> Optional[UserModel]:
-        document = await self.collection.find_one({"email": email})
-        if document:
-            document["id"] = document.pop("_id")
-            return UserModel(**document)
-        return None
+    async def read_user_from_email(self, db: AsyncSession, email: str) -> Optional[UserModel]:
+        result = await db.execute(
+            select(UserModel).where(UserModel.email == email)
+        )
+        user = result.scalar_one_or_none()
+        return user
 
-    async def read_user_from_number(self, number: str) -> Optional[UserModel]:
-        document = await self.collection.find_one({"number": number})
-        if document:
-            document["id"] = document.pop("_id")
-            return UserModel(**document)
-        return None
+    async def read_user_from_number(self, db: AsyncSession, phone: str) -> Optional[UserModel]:
+        result = await db.execute(
+            select(UserModel).where(UserModel.phone == phone)
+        )
+        user = result.scalar_one_or_none()
+        return user
 
-    async def list_all_user_ids(self) -> Optional[List[str]]:
-        cursor = self.collection.find({}, {"_id": 1})
-        user_ids = []
-        async for document in cursor:
-            user_ids.append(document["_id"])
+    async def list_all_user_ids(self, db: AsyncSession) -> Optional[List[int]]:
+        result = await db.execute(select(UserModel.user_Id))
+        user_ids = result.scalars().all()
         if user_ids:
             return user_ids
         return None

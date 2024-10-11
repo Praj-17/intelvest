@@ -1,21 +1,34 @@
-from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field
+from datetime import datetime, date
+from pydantic import BaseModel, Field
 from typing import List, Optional
-from src.models  import AssetModel
+from enum import Enum
+from .asset import AssetType, AssetCreate, AssetOut, AssetUpdate
+
+
+
 
 class PortfolioCreate(BaseModel):
-    user_id: Optional[str] = None
-    assets: List[AssetModel]
+    user_id: int
+    portfolio_name: str
+    assets: Optional[List[AssetCreate]] = None
+
+    class Config:
+        from_attributes = True
 
 class PortfolioUpdate(BaseModel):
-    assets: Optional[List[AssetModel]]
+    portfolio_name: Optional[str]
+    assets: Optional[List[AssetUpdate]]
+
+    class Config:
+        from_attributes = True
 
 class PortfolioOut(BaseModel):
-    id: str
-    user_id: Optional[str] = None
-    assets: List[AssetModel]
-    created_at: datetime
+    p_id: int
+    user_id: int
+    portfolio_name: str
     updated_at: datetime
+    created_at: date
+    assets: Optional[List[AssetOut]] = None
 
     class Config:
         from_attributes = True
