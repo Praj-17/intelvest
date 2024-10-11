@@ -15,7 +15,7 @@ from src.schemas import (
 )
 from src.services import PortfolioService, AssetService
 from src.database import get_database
-from src.routes.oauth2 import get_current_user
+from src.routes.oauth2 import get_current_user,get_user_id
 from src.services import get_asset_service, get_portfolio_service
 
 
@@ -32,7 +32,8 @@ async def upload_portfolio(
     db: AsyncSession = Depends(get_database),
     service: PortfolioService = Depends(get_portfolio_service),
     asset_service: AssetService =  Depends(get_asset_service),
-    current_user: UserModel = Depends(get_current_user)
+    current_user: UserModel = Depends(get_current_user),
+    current_user_id: str = Depends(get_user_id)
 ):
     required_columns = {'symbol', 'quantity', 'purchase_price', 'purchase_date', 'asset_type'}
 
@@ -61,7 +62,7 @@ async def upload_portfolio(
         # Create the portfolio using the service
         portfolio_data = PortfolioCreate(
             portfolio_name="Uploaded Portfolio",
-            user_id=28
+            user_id=current_user_id
         )
         new_portfolio = await service.create_portfolio(db, portfolio_data)
 
@@ -92,7 +93,7 @@ async def upload_portfolio(
                 purchase_date=purchase_date,
                 quantity=quantity,
                 purchase_price=purchase_price,
-                user_id=28,
+                user_id=current_user_id,
                 portfolio_id=new_portfolio.p_id
             )
             new_asset = await asset_service.create_asset(db, asset)
@@ -117,14 +118,16 @@ async def create_portfolio(
     portfolio_service: PortfolioService = Depends(get_portfolio_service),
     asset_service: AssetService = Depends(get_asset_service),
     current_user: UserModel = Depends(get_current_user)
+    ,current_user_id: str = Depends(get_user_id)
 ):
     # Assign the authenticated user's ID to the portfolio
-    portfolio_data.user_id = 28
+    portfolio_data.user_id = current_user_id
 
     # Create the portfolio using the service
     new_portfolio = await portfolio_service.create_portfolio(db, portfolio_data)
 
     assets = []
+    
     if portfolio_data.assets:
         for asset_data in portfolio_data.assets:
             asset_data.user_id = 28
@@ -145,10 +148,15 @@ async def update_portfolio(
     portfolio_service: PortfolioService = Depends(get_portfolio_service),
     asset_service: AssetService = Depends(get_asset_service),
     current_user: UserModel = Depends(get_current_user)
+    ,current_user_id: str = Depends(get_user_id)
+    
 ):
+    #getting the current user email id
+    # print(f"The current user is : {current_user_id}")
+
     # Retrieve the existing portfolio
     existing_portfolio = await portfolio_service.read_portfolio(db, portfolio_id)
-    if existing_portfolio is None or existing_portfolio.user_id != 28:
+    if existing_portfolio is None or existing_portfolio.user_id != current_user_id:
         raise HTTPException(status_code=404, detail="Portfolio not found")
 
     # Update the portfolio using the service
@@ -169,9 +177,14 @@ async def read_portfolio(
     db: AsyncSession = Depends(get_database),
     service: PortfolioService = Depends(get_portfolio_service),
     current_user: UserModel = Depends(get_current_user)
+    ,current_user_id: str = Depends(get_user_id)
+    
 ):
+    #getting the current user email id
+    # print(f"The current user is : {current_user_id}")
+
     portfolio = await service.read_portfolio(db, portfolio_id)
-    if portfolio is None or portfolio.user_id != 28:
+    if portfolio is None or portfolio.user_id != current_user_id:
         raise HTTPException(status_code=404, detail="Portfolio not found")
     return PortfolioOut.from_orm(portfolio)
 
@@ -181,9 +194,14 @@ async def delete_portfolio(
     db: AsyncSession = Depends(get_database),
     service: PortfolioService = Depends(get_portfolio_service),
     current_user: UserModel = Depends(get_current_user)
+    ,current_user_id: str = Depends(get_user_id)
+    
 ):
+    #getting the current user email id
+    # print(f"The current user is : {current_user_id}")
+
     existing_portfolio = await service.read_portfolio(db, portfolio_id)
-    if existing_portfolio is None or existing_portfolio.user_id != 28:
+    if existing_portfolio is None or existing_portfolio.user_id != current_user_id:
         raise HTTPException(status_code=404, detail="Portfolio not found")
 
     success = await service.delete_portfolio(db, portfolio_id)
@@ -198,6 +216,11 @@ async def list_portfolios(
     db: AsyncSession = Depends(get_database),
     service: PortfolioService = Depends(get_portfolio_service),
     current_user: UserModel = Depends(get_current_user)
+    ,current_user_id: str = Depends(get_user_id)
+    
 ):
-    portfolios = await service.get_portfolios_by_user(db, 28, skip=skip, limit=limit)
+    #getting the current user email id
+    # print(f"The current user is : {current_user_id}")
+
+    portfolios = await service.get_portfolios_by_user(db, current_user_id)
     return [PortfolioOut.from_orm(p) for p in portfolios]

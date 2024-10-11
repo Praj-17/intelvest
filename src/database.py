@@ -17,7 +17,7 @@ DATABASE_URL = (
     f"mysql+aiomysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
 )
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=False)
 
 async_session = sessionmaker(
     engine, expire_on_commit=False, class_=AsyncSession

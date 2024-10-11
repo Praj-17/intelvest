@@ -9,7 +9,7 @@ from datetime import datetime
 
 from src.models import UserModel
 from src.schemas import UserCreate, UserUpdate
-
+from src.routes.oauth2 import get_password_hash
 class CRUDUser:
     def __init__(self):
         pass  # No initialization needed

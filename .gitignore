@@ -186,5 +186,4 @@ env/
 __pycache__
 intelvest/env
 intelvest/env/
-intelvest_env
-intelvest_env/
+intelvest\yFinancedb (3).sql

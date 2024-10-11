@@ -16,4 +16,4 @@ bcrypt
 python-jose
 python-multipart
 sqlalchemy
-# ------
+aiomysql
