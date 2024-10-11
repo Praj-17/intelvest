@@ -6,7 +6,7 @@ from src.models import AssetType
 class AssetCreate(BaseModel):
     asset_id: Optional[int] = 0
     user_id: int
-    portfolio_id: int
+    portfolio_id: Optional[int] = 0
     asset_type: AssetType
     symbol: str
     purchase_date: date

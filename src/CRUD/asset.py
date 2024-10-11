@@ -82,7 +82,7 @@ class CRUDAsset:
             select(AssetModel).where(AssetModel.portfolio_id == portfolio_id)
         )
         assets = result.scalars().all()
-        return assets
+        return [asset.to_dict() for asset in assets]
 
     async def list_all_asset_ids(self, db: AsyncSession) -> Optional[List[int]]:
         result = await db.execute(select(AssetModel.p_asset_id))

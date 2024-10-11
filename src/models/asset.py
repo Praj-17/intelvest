@@ -14,7 +14,7 @@ class AssetType(str, Enum):
     # Add other asset types as needed
 
 class AssetModel(Base):
-    __tablename__ = 'assets'
+    __tablename__ = 'portfolio_asset'
 
     p_asset_id = Column(Integer, primary_key=True, autoincrement=True)
     asset_id = Column(Integer, default=0)

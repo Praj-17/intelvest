@@ -7,12 +7,12 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 class PortfolioModel(Base):
-    __tablename__ = 'portfolios'
+    __tablename__ = 'portfolio'
 
     p_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, nullable=False)
     portfolio_name = Column(String(255), nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     created_at = Column(Date, default=date.today)
 
     def to_dict(self):

@@ -43,9 +43,9 @@ class PortfolioUtils:
         total_value = self.get_initial_amount(asset_list)
         
         # Calculate the weight for each stock as (quantity * purchase_price) / total_value
-        return [(asset['quantity'] * asset['purchase_price']) / total_value for asset in asset_list]
+        return [(asset['quantity'] * float(asset['purchase_price'])) / total_value for asset in asset_list]
     def get_initial_amount(self, assets):
-          return sum(asset['quantity'] * asset['purchase_price'] for asset in assets)
+          return sum(asset['quantity'] * float(asset['purchase_price']) for asset in assets)
     
     def get_all_data(self, asset_list):
 

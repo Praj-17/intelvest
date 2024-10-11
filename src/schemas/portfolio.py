@@ -10,14 +10,12 @@ from .asset import AssetType, AssetCreate, AssetOut, AssetUpdate
 class PortfolioCreate(BaseModel):
     user_id: int
     portfolio_name: str
-    assets: Optional[List[AssetCreate]] = None
 
     class Config:
         from_attributes = True
 
 class PortfolioUpdate(BaseModel):
     portfolio_name: Optional[str]
-    assets: Optional[List[AssetUpdate]]
 
     class Config:
         from_attributes = True

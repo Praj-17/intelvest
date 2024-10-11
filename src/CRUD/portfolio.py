@@ -19,7 +19,7 @@ class CRUDPortfolio:
             user_id=portfolio.user_id,
             portfolio_name=portfolio.portfolio_name,
             created_at=date.today(),
-            updated_at=datetime.utcnow()
+            updated_at=datetime.now()
         )
         db.add(new_portfolio)
         await db.commit()
@@ -40,7 +40,7 @@ class CRUDPortfolio:
         update_data = portfolio.dict(exclude_unset=True)
         for key, value in update_data.items():
             setattr(existing_portfolio, key, value)
-        existing_portfolio.updated_at = datetime.utcnow()
+        existing_portfolio.updated_at = datetime.now()
         await db.commit()
         await db.refresh(existing_portfolio)
         return existing_portfolio

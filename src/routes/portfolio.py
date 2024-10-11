@@ -8,14 +8,15 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.models import AssetType, user, UserModel
+from src.models import AssetType, UserModel
 from src.schemas import (
     PortfolioCreate, PortfolioOut, PortfolioUpdate, 
     AssetCreate, AssetOut
 )
-from src.services import PortfolioService
+from src.services import PortfolioService, AssetService
 from src.database import get_database
 from src.routes.oauth2 import get_current_user
+from src.services import get_asset_service, get_portfolio_service
 
 
 portfolio_router = APIRouter(
@@ -24,15 +25,13 @@ portfolio_router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-# Dependency to get the PortfolioService instance
-def get_portfolio_service() -> PortfolioService:
-    return PortfolioService()
 
 @portfolio_router.post("/upload", response_model=PortfolioOut, status_code=status.HTTP_201_CREATED)
 async def upload_portfolio(
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_database),
     service: PortfolioService = Depends(get_portfolio_service),
+    asset_service: AssetService =  Depends(get_asset_service),
     current_user: UserModel = Depends(get_current_user)
 ):
     required_columns = {'symbol', 'quantity', 'purchase_price', 'purchase_date', 'asset_type'}
@@ -59,6 +58,12 @@ async def upload_portfolio(
                 status_code=400, 
                 detail=f"Missing columns in CSV: {', '.join(missing)}"
             )
+        # Create the portfolio using the service
+        portfolio_data = PortfolioCreate(
+            portfolio_name="Uploaded Portfolio",
+            user_id=28
+        )
+        new_portfolio = await service.create_portfolio(db, portfolio_data)
 
         assets = []
         for _, row in df.iterrows():
@@ -86,16 +91,13 @@ async def upload_portfolio(
                 symbol=symbol,
                 purchase_date=purchase_date,
                 quantity=quantity,
-                purchase_price=purchase_price
+                purchase_price=purchase_price,
+                user_id=28,
+                portfolio_id=new_portfolio.p_id
             )
-            assets.append(asset)
-
-        portfolio_data = PortfolioCreate(
-            user_id=current_user.id,
-            portfolio_name="Uploaded Portfolio",
-            assets=assets
-        )
-
+            new_asset = await asset_service.create_asset(db, asset)
+            assets.append(new_asset)
+            
     except HTTPException as he:
         raise he
     except Exception as e:
@@ -104,22 +106,35 @@ async def upload_portfolio(
             detail=f"Error processing the CSV file: {str(e)}"
         )
 
-    # Create the portfolio using the service
-    new_portfolio = await service.create_portfolio(db, portfolio_data)
+    # Load the assets into the new_portfolio
+    new_portfolio.assets = assets
     return PortfolioOut.from_orm(new_portfolio)
 
 @portfolio_router.post("/", response_model=PortfolioOut, status_code=status.HTTP_201_CREATED)
 async def create_portfolio(
     portfolio_data: PortfolioCreate,
     db: AsyncSession = Depends(get_database),
-    service: PortfolioService = Depends(get_portfolio_service),
+    portfolio_service: PortfolioService = Depends(get_portfolio_service),
+    asset_service: AssetService = Depends(get_asset_service),
     current_user: UserModel = Depends(get_current_user)
 ):
     # Assign the authenticated user's ID to the portfolio
-    portfolio_data.user_id = current_user.id
+    portfolio_data.user_id = 28
 
     # Create the portfolio using the service
-    new_portfolio = await service.create_portfolio(db, portfolio_data)
+    new_portfolio = await portfolio_service.create_portfolio(db, portfolio_data)
+
+    assets = []
+    if portfolio_data.assets:
+        for asset_data in portfolio_data.assets:
+            asset_data.user_id = 28
+            asset_data.portfolio_id = new_portfolio.p_id
+            new_asset = await asset_service.create_asset(db, asset_data)
+            assets.append(new_asset)
+
+    # Load the assets into the new_portfolio
+    new_portfolio.assets = assets
+
     return PortfolioOut.from_orm(new_portfolio)
 
 @portfolio_router.put("/{portfolio_id}", response_model=PortfolioOut)
@@ -127,20 +142,26 @@ async def update_portfolio(
     portfolio_id: int,
     portfolio_update: PortfolioUpdate,
     db: AsyncSession = Depends(get_database),
-    service: PortfolioService = Depends(get_portfolio_service),
+    portfolio_service: PortfolioService = Depends(get_portfolio_service),
+    asset_service: AssetService = Depends(get_asset_service),
     current_user: UserModel = Depends(get_current_user)
 ):
     # Retrieve the existing portfolio
-    existing_portfolio = await service.read_portfolio(db, portfolio_id)
-    if existing_portfolio is None or existing_portfolio.user_id != current_user.id:
+    existing_portfolio = await portfolio_service.read_portfolio(db, portfolio_id)
+    if existing_portfolio is None or existing_portfolio.user_id != 28:
         raise HTTPException(status_code=404, detail="Portfolio not found")
 
     # Update the portfolio using the service
-    updated_portfolio = await service.update_portfolio(db, portfolio_id, portfolio_update)
+    updated_portfolio = await portfolio_service.update_portfolio(db, portfolio_id, portfolio_update)
     if updated_portfolio is None:
         raise HTTPException(status_code=400, detail="No changes made or update failed")
 
-    return PortfolioOut.from_orm(updated_portfolio)
+    # Optionally handle assets update here if needed
+
+    # Fetch the updated portfolio with assets
+    portfolio_with_assets = await portfolio_service.read_portfolio(db, portfolio_id)
+
+    return PortfolioOut.from_orm(portfolio_with_assets)
 
 @portfolio_router.get("/{portfolio_id}", response_model=PortfolioOut)
 async def read_portfolio(
@@ -150,7 +171,7 @@ async def read_portfolio(
     current_user: UserModel = Depends(get_current_user)
 ):
     portfolio = await service.read_portfolio(db, portfolio_id)
-    if portfolio is None or portfolio.user_id != current_user.id:
+    if portfolio is None or portfolio.user_id != 28:
         raise HTTPException(status_code=404, detail="Portfolio not found")
     return PortfolioOut.from_orm(portfolio)
 
@@ -162,7 +183,7 @@ async def delete_portfolio(
     current_user: UserModel = Depends(get_current_user)
 ):
     existing_portfolio = await service.read_portfolio(db, portfolio_id)
-    if existing_portfolio is None or existing_portfolio.user_id != current_user.id:
+    if existing_portfolio is None or existing_portfolio.user_id != 28:
         raise HTTPException(status_code=404, detail="Portfolio not found")
 
     success = await service.delete_portfolio(db, portfolio_id)
@@ -178,5 +199,5 @@ async def list_portfolios(
     service: PortfolioService = Depends(get_portfolio_service),
     current_user: UserModel = Depends(get_current_user)
 ):
-    portfolios = await service.get_portfolios_by_user(db, current_user.id, skip=skip, limit=limit)
+    portfolios = await service.get_portfolios_by_user(db, 28, skip=skip, limit=limit)
     return [PortfolioOut.from_orm(p) for p in portfolios]

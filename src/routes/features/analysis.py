@@ -9,6 +9,7 @@ import pandas as pd
 from src.modules import get_okama_reporter
 from src.utils import get_utils, Utils
 
+from src.database import get_database
 # ---ak---
 from src.schemas import user
 from src.routes import oauth2
@@ -48,12 +49,13 @@ async def read_attributes(okama_reporter: OkamaReporter = Depends(get_okama_repo
     }
 )
 async def get_analysis(
-    portfolio_id: str,
+    portfolio_id: int,
     attribute: str,
     service: PortfolioService = Depends(get_portfolio_service),
     okama_reporter: OkamaReporter = Depends(get_okama_reporter),
     utils: Utils = Depends(get_utils),
-    current_user: user.Login = Depends(oauth2.get_current_user)
+    current_user: user.Login = Depends(oauth2.get_current_user),
+    db = Depends(get_database)
 ):
     print("__________________________________________________________")
     print(utils)
@@ -67,8 +69,8 @@ async def get_analysis(
             detail="Portfolio ID and attribute are required."
         )
 
-    portfolio = await service.read_portfolio(portfolio_id)
-    portfolio = portfolio.to_dict()
+    portfolio = await service.read_portfolio_with_assets(db, portfolio_id)
+
 
     print("________________________________________________________________")
     print(portfolio)
