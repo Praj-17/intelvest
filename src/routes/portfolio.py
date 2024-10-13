@@ -1,6 +1,6 @@
 # app/routes/portfolio_router.py
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, status, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, status, Depends, Form
 from typing import List, Optional
 import pandas as pd
 from io import StringIO
@@ -29,6 +29,7 @@ portfolio_router = APIRouter(
 @portfolio_router.post("/upload", response_model=PortfolioOut, status_code=status.HTTP_201_CREATED)
 async def upload_portfolio(
     file: UploadFile = File(...),
+    portfolio_name: str = Form(...),
     db: AsyncSession = Depends(get_database),
     service: PortfolioService = Depends(get_portfolio_service),
     asset_service: AssetService =  Depends(get_asset_service),
@@ -61,7 +62,7 @@ async def upload_portfolio(
             )
         # Create the portfolio using the service
         portfolio_data = PortfolioCreate(
-            portfolio_name="Uploaded Portfolio",
+            portfolio_name=portfolio_name,
             user_id=current_user_id
         )
         new_portfolio = await service.create_portfolio(db, portfolio_data)
