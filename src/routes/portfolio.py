@@ -130,7 +130,7 @@ async def create_portfolio(
     
     if portfolio_data.assets:
         for asset_data in portfolio_data.assets:
-            asset_data.user_id = 28
+            asset_data.user_id = current_user_id
             asset_data.portfolio_id = new_portfolio.p_id
             new_asset = await asset_service.create_asset(db, asset_data)
             assets.append(new_asset)
