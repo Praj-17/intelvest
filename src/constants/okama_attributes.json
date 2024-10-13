@@ -1,4 +1,5 @@
-[
+{
+  "attributes": [
     "annual_return_ts",
     "assets_close_monthly",
     "assets_dividend_yield",
@@ -70,5 +71,15 @@
     "wealth_index_with_assets",
     "weights",
     "weights_ts"
+  ],
+  "types": [
+    "LIST",
+    "INT",
+    "FLOAT",
+    "STR",
+    "TIMESTAMP",
+    "UNKNOWN",
+    "HTML",
+    "DICT"
   ]
-  
+}

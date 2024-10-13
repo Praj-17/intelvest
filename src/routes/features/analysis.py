@@ -27,7 +27,7 @@ analysis_router = APIRouter(
 
 @analysis_router.get(
     "/",
-    response_model=List[str],
+    response_model=dict,
     summary="Retrieve all available attributes for analysis",
     status_code=status.HTTP_200_OK
 )
@@ -80,6 +80,7 @@ async def get_analysis(
     print(processed_portfolio)
     
     available_attributes = okama_reporter.get_attributes()
+    available_attributes = available_attributes['attributes']
     if attribute not in available_attributes:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -92,5 +93,10 @@ async def get_analysis(
     print(data)
 
     # Format Data
-    data = utils.serialize_data(data=data)
-    return JSONResponse(content=jsonable_encoder(data), status_code=200)
+    data, type = utils.serialize_data(data=data)
+
+    if not type:
+        type = utils.get_data_type(data = data)
+
+    output = {"type": type, data: data}
+    return JSONResponse(content=jsonable_encoder(output), status_code=200)
