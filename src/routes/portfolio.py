@@ -15,7 +15,7 @@ from src.schemas import (
 )
 from src.services import PortfolioService, AssetService
 from src.database import get_database
-from src.routes.oauth2 import get_current_user,get_user_id
+from src.utils import get_current_user,get_user_id
 from src.services import get_asset_service, get_portfolio_service
 
 

@@ -10,8 +10,8 @@ from src.database import get_database
 from src.services import UserService
 
 # Authentication dependencies
-from src.schemas.user import UserOut as CurrentUser
-from src.routes.oauth2 import get_current_user,get_user_id
+from src.schemas import UserOut as CurrentUser
+from src.utils import get_current_user,get_user_id
 
 user_router = APIRouter(
     prefix="/user",

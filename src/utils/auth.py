@@ -1,7 +1,6 @@
 
 from fastapi import Depends, HTTPException, status,Request
 from fastapi.security import OAuth2PasswordBearer
-from . import token
 from jose import JWTError, jwt
 import os
 from passlib.context import CryptContext
@@ -12,8 +11,39 @@ from src.database import get_database
 from sqlalchemy.future import select
 load_dotenv()
 
+
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
+
+
+from datetime import datetime, timedelta
+from jose import JWTError, jwt
+from src.schemas import user
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+def verify_token(token: str, credentials_exception):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        token_data = user.TokenData(email=email)
+    except JWTError:
+        raise credentials_exception
+    
 def get_current_user(data: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -21,7 +51,7 @@ def get_current_user(data: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    return token.verify_token(data, credentials_exception)
+    return verify_token(data, credentials_exception)
 
 
 

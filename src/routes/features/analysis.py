@@ -10,11 +10,10 @@ from src.modules import get_okama_reporter
 from src.utils import get_utils, Utils
 
 from src.database import get_database
-# ---ak---
+
 from src.schemas import user
-from src.routes import oauth2
-# ,current_user: user.Login = Depends(oauth2.get_current_user)
-# --------
+from src.utils import get_current_user,get_user_id
+
 
 
 analysis_router = APIRouter(
@@ -32,7 +31,7 @@ analysis_router = APIRouter(
     summary="Retrieve all available attributes for analysis",
     status_code=status.HTTP_200_OK
 )
-async def read_attributes(okama_reporter: OkamaReporter = Depends(get_okama_reporter),current_user: user.Login = Depends(oauth2.get_current_user)) -> List[str]:
+async def read_attributes(okama_reporter: OkamaReporter = Depends(get_okama_reporter),current_user: user.Login = Depends(get_current_user)) -> List[str]:
     """
     Retrieve a list of all available attributes for analysis.
     """
@@ -54,7 +53,7 @@ async def get_analysis(
     service: PortfolioService = Depends(get_portfolio_service),
     okama_reporter: OkamaReporter = Depends(get_okama_reporter),
     utils: Utils = Depends(get_utils),
-    current_user: user.Login = Depends(oauth2.get_current_user),
+    current_user: user.Login = Depends(get_current_user),
     db = Depends(get_database)
 ):
     print("__________________________________________________________")
