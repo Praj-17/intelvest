@@ -43,3 +43,42 @@ class UserService:
 
     async def read_user_from_number(self, db: AsyncSession, phone: str) -> Optional[UserModel]:
         return await self.crud.read_user_from_number(db, phone)
+
+
+# class UserService:
+#     def __init__(self,db:AsyncSession):
+#         self.db=db
+#         self.crud = CRUDUser()
+
+#     async def create_user(self, data: UserCreate) -> UserModel:
+#         return await self.crud.create_user(self.db, data)
+
+#     async def read_user(self, user_id: int) -> Optional[UserModel]:
+#         return await self.crud.get_user(self.db, user_id)
+
+#     async def update_user(self, user_id: int, data: UserUpdate) -> Optional[UserModel]:
+#         return await self.crud.update_user(self.db, user_id, data)
+
+#     async def delete_user(self, user_id: int) -> bool:
+#         return await self.crud.delete_user(self.db, user_id)
+
+#     async def read_all_users(self, skip: int = 0, limit: int = 10) -> List[UserModel]:
+#         return await self.crud.list_users(self.db, skip=skip, limit=limit)
+
+#     async def get_user_id_from_email(self, email: str) -> Optional[int]:
+#         user = await self.crud.read_user_from_email(self.db, email)
+#         if user:
+#             return user.user_Id
+#         return None
+
+#     async def list_all_user_ids(self) -> Optional[List[int]]:
+#         user_ids = await self.crud.list_all_user_ids(self.db)
+#         if user_ids:
+#             return user_ids
+#         return None
+
+#     async def read_user_from_email(self, email: str) -> Optional[UserModel]:
+#         return await self.crud.read_user_from_email(self.db, email)
+
+#     async def read_user_from_number(self, phone: str) -> Optional[UserModel]:
+#         return await self.crud.read_user_from_number(self.db, phone)

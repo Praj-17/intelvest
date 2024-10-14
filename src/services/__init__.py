@@ -8,3 +8,6 @@ def get_portfolio_service(db=Depends(get_database)) -> PortfolioService:
     return PortfolioService()
 def get_asset_service(db=Depends(get_database)) -> AssetService:
     return AssetService()
+
+# def get_user_service(db=Depends(get_database)) -> UserService:
+#     return UserService()
