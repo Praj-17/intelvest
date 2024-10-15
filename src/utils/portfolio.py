@@ -54,7 +54,7 @@ class PortfolioUtils:
             # "first_date": self.get_first_date(asset_list),
             "assets": self.get_portfolio(asset_list),
             "weights": self.get_initial_weights(asset_list),
-            "initial_amount": self.get_initial_amount(asset_list)
+            # "initial_amount": self.get_initial_amount(asset_list)
         }
     
     

@@ -16,9 +16,10 @@ class Utils:
         }
     
     def format_html(self, html):
-        html = html.replace(r"\n </tr>\n <tr>\n ", "")
-        html = html.replace(r"\n </tr>\n <tr>\n", "")
-        html = html.replace(r"</tr>\n <tr>\n ", "")
+        if isinstance(html, str):
+            html = html.replace(r"\n </tr>\n <tr>\n ", "")
+            html = html.replace(r"\n </tr>\n <tr>\n", "")
+            html = html.replace(r"</tr>\n <tr>\n ", "")
         return html
 
     def serialize_data(self, data: Any) -> Any:
@@ -32,7 +33,7 @@ class Utils:
             df = data.reset_index()
             df.columns = ['Date', 'Value']
             # Step 3: Convert DataFrame to HTML
-            html_table = html_table = df.to_html(
+            html_table = df.to_html(
                                     index=False,
                                     classes="table table-striped table-bordered table-hover table-sm",
                                     border=0,
