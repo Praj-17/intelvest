@@ -7,6 +7,7 @@ from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from dotenv import load_dotenv
 from src.models import UserModel
+import hashlib
 from src.database import get_database 
 from sqlalchemy.future import select
 load_dotenv()
@@ -118,5 +119,15 @@ async def get_user_id(request: Request, db: AsyncSession = Depends(get_database)
 # Create a CryptContext for bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# def get_password_hash(password: str) -> str:
+#     md5_hash = hashlib.md5()
+#     md5_hash.update(password.encode('utf-8'))
+#     return md5_hash.hexdigest()
+
+# def verify_password(plain_password: str, hashed_password: str) -> bool:
+#     return pwd_context.verify(plain_password, hashed_password)
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)

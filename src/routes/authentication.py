@@ -7,12 +7,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 from src.database import get_database
 from src.services import UserService
 from src.utils import create_access_token
+from src.utils.auth import verify_password,get_password_hash
 
 
 auth_router = APIRouter(
     tags=["Authentication"]
 )
-
 
 @auth_router.post('/login')
 async def login(
@@ -21,12 +21,15 @@ async def login(
     service: UserService = Depends(UserService)
 ):
     # Retrieve the user by email (username)
+    
     usern = await service.read_user_from_email(db, request.username)
+
     if not usern:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    
+
     # Verify the provided password against the stored hashed password
-    if not request.password == usern.password:
+    if not verify_password(request.password, usern.password):
+    # if not request.password == usern.password:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
     
     # Create an access token
