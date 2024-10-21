@@ -13,6 +13,7 @@ app = FastAPI(
     title="Intelvest",
     description="Server for Intelvest",
     version="1.0.0",
+    root_path="/intelvestAPI", 
 )
 
 # @app.get("/")
