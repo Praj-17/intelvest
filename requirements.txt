@@ -20,3 +20,4 @@ aiomysql
 httpx
 pytest
 mpld3
+plotly

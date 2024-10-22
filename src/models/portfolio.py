@@ -14,7 +14,6 @@ class PortfolioModel(Base):
     portfolio_name = Column(String(255), nullable=False)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     created_at = Column(Date, default=date.today)
-
     def to_dict(self):
         return {
             "p_id": self.p_id,
