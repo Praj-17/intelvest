@@ -6,7 +6,6 @@ python-dotenv
 bcrypt
 pydantic[email]
 okama
-empyrial
 jinja2
 python-multipart
 
@@ -17,3 +16,4 @@ python-jose
 python-multipart
 sqlalchemy
 aiomysql
+mpld3

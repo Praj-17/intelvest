@@ -3,7 +3,6 @@ import pandas as pd
 from typing import Any
 from okama.settings import PeriodLength
 from matplotlib.axes import Axes
-from mpld3 import fig_to_html
 import numpy as np
 
 class Utils:
@@ -53,8 +52,6 @@ class Utils:
         elif isinstance(data, PeriodLength):
             type = "DICT"
             return self.convert_pl_to_dict(data), type
-        elif isinstance(data, Axes):
-            return fig_to_html(data)
            
         return data
     def get_data_type(self, data: Any):

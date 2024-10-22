@@ -17,7 +17,7 @@ class OkamaReporter:
         obj = portfolio_obj.__getattribute__(attribute)
         if callable(obj):
             return obj()
-        return obj
+        return obj, portfolio_obj
     
 
 

@@ -13,6 +13,7 @@ from src.database import get_database
 
 from src.schemas import user
 from src.utils import get_current_user,get_user_id
+from src.modules import map_plots_with_attributes
 
 
 
@@ -88,7 +89,7 @@ async def get_analysis(
         )
     
     
-    data = okama_reporter.get_an_attribute(processed_portfolio, attribute)
+    data, portfolio_obj = okama_reporter.get_an_attribute(processed_portfolio, attribute)
     print("_______________________________________")
     print(data)
 
@@ -97,6 +98,14 @@ async def get_analysis(
 
     if not type:
         type = utils.get_data_type(data = data)
+    
+    # Prepare visualization
 
-    output = {"type": type, data: data}
+    # first_check_if_the_data is among the visuzloations
+
+    # Then call the visualization
+    html, reason = map_plots_with_attributes(attribute, portfolio_obj)
+    # send the HTML
+
+    output = {"type": type, "data": data, "visualization": html, "reason": reason}
     return JSONResponse(content=jsonable_encoder(output), status_code=200)
