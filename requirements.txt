@@ -6,14 +6,17 @@ python-dotenv
 bcrypt
 pydantic[email]
 okama
+# empyrial
 jinja2
 python-multipart
 
-# ----@k
+# ----
 passlib
 bcrypt
 python-jose
 python-multipart
 sqlalchemy
 aiomysql
+httpx
+pytest
 mpld3

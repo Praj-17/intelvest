@@ -212,8 +212,6 @@ async def delete_portfolio(
 
 @portfolio_router.get("/", response_model=List[PortfolioOut])
 async def list_portfolios(
-    skip: int = 0,
-    limit: int = 10,
     db: AsyncSession = Depends(get_database),
     service: PortfolioService = Depends(get_portfolio_service),
     current_user: UserModel = Depends(get_current_user)
@@ -225,3 +223,19 @@ async def list_portfolios(
 
     portfolios = await service.get_portfolios_by_user(db, current_user_id)
     return [PortfolioOut.from_orm(p) for p in portfolios]
+
+# @portfolio_router.get("/", response_model=List[PortfolioOut])
+# async def list_portfolios(
+#     skip: int = 0,
+#     limit: int = 10,
+#     db: AsyncSession = Depends(get_database),
+#     service: PortfolioService = Depends(get_portfolio_service),
+#     current_user: UserModel = Depends(get_current_user)
+#     ,current_user_id: str = Depends(get_user_id)
+    
+# ):
+#     #getting the current user email id
+#     # print(f"The current user is : {current_user_id}")
+
+#     portfolios = await service.get_portfolios_by_user(db, current_user_id)
+#     return [PortfolioOut.from_orm(p) for p in portfolios]

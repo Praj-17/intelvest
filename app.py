@@ -7,21 +7,20 @@ from starlette.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import PlainTextResponse
 
 app = FastAPI(
     title="Intelvest",
     description="Server for Intelvest",
     version="1.0.0",
+    root_path="/intelvestAPI", 
 )
 
-# ---ak---
-@app.get("/")
-def home():
-    return "hello"
+# @app.get("/")
+# def home():
+#     return "hello"
 
 app.include_router(analysis_router)
-# ----------------------------
-
 app.include_router(user_router)
 app.include_router(portfolio_router)
 app.include_router(analysis_router)

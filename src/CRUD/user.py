@@ -15,7 +15,7 @@ class CRUDUser:
     async def create_user(self, db: AsyncSession, user: UserCreate) -> UserModel:
         # Hash the password before storing it
         user_data = user.dict(exclude={'password'})
-        user_data['password'] = user.password
+        user_data['password'] =  get_password_hash(user.password)
         user_data['added_on'] = datetime.now()
 
         new_user = UserModel(**user_data)
