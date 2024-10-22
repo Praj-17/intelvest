@@ -184,9 +184,11 @@ async def read_portfolio(
     #getting the current user email id
     # print(f"The current user is : {current_user_id}")
 
-    portfolio = await service.read_portfolio(db, portfolio_id)
-    if portfolio is None or portfolio.user_id != current_user_id:
-        raise HTTPException(status_code=404, detail="Portfolio not found")
+    # portfolio = await service.read_portfolio(db, portfolio_id)
+    # if portfolio is None or portfolio.user_id != current_user_id:
+    #     raise HTTPException(status_code=404, detail="Portfolio not found")
+    # return PortfolioOut.from_orm(portfolio)
+    portfolio = await service.read_portfolio_with_assets(db, portfolio_id)
     return PortfolioOut.from_orm(portfolio)
 
 @portfolio_router.delete("/{portfolio_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -221,8 +223,11 @@ async def list_portfolios(
     portfolios = await service.get_portfolios_by_user(db, current_user_id)
     pids=[PortfolioOut.from_orm(p) for p in portfolios]
     portfolios=[]
-    temp=await service.read_portfolio_with_assets(db,pids[0].p_id )
-    portfolios.append(temp)
+    for i in pids:
+        temp=await service.read_portfolio_with_assets(db,i.p_id )
+        portfolios.append(temp)
+    # temp=await service.read_portfolio_with_assets(db,pids[0].p_id )
+    # portfolios.append(temp) 
     # print(portfolios)
     data=[PortfolioOut.from_orm(p) for p in portfolios]
     return  data
