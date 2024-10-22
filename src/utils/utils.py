@@ -53,7 +53,7 @@ class Utils:
             type = "DICT"
             return self.convert_pl_to_dict(data), type
            
-        return data
+        return data, type
     def get_data_type(self, data: Any):
         if isinstance(data, list):
             return "LIST"
