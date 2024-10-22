@@ -42,3 +42,4 @@ class PortfolioService:
         portfolio = portfolio.to_dict()
         portfolio["assets"] = assets
         return portfolio
+    

@@ -74,3 +74,4 @@ class CRUDPortfolio:
         if portfolio_ids:
             return portfolio_ids
         return None
+    
