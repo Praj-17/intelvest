@@ -168,7 +168,7 @@ async def update_portfolio(
     # Optionally handle assets update here if needed
 
     # Fetch the updated portfolio with assets
-    portfolio_with_assets = await portfolio_service.read_portfolio(db, portfolio_id)
+    portfolio_with_assets = await portfolio_service.read_portfolio_with_assets(db, portfolio_id)
 
     return PortfolioOut.from_orm(portfolio_with_assets)
 
