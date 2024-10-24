@@ -36,7 +36,10 @@ async def read_attributes(okama_reporter: OkamaReporter = Depends(get_okama_repo
     """
     Retrieve a list of all available attributes for analysis.
     """
-    return okama_reporter.get_attributes()
+    return {
+        "okama_attributes": okama_reporter.get_attributes(),
+        "okama_visualizations": okama_reporter.get_visualizations(),
+    }
 
 @analysis_router.post(
     "/",
